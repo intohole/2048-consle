@@ -8,8 +8,19 @@ from subprocess import call
 
 
 class ConsleString(object):
-
-    __strbuffer = []
+    '''
+    终端颜色字体输出
+    主要运用方式为
+    cmd = ConsleString()
+    cmd.red.black.append_string('hello word!')
+    ConsleString.consle_show(cmd)
+    但是每写一行要清空字符串的ｂｕｆｆｅｒ
+    cmd.clear()
+    ConsleString.consle_clear() #清除终端 clear 
+    原理 : echo -e 
+    特殊字符的颜色字体
+    '''
+    __strbuffer = [] #字符串储存　
     __fore_color = False
     __append = False
 
@@ -85,7 +96,10 @@ import termios
 
 
 class Control(object):
-
+    '''
+    这个是网络上抄的　，　摘自https://github.com/bfontaine/term2048/blob/master/term2048/keypress.py
+    但是其它部分都是原创　，　打小抄了　．．．
+    '''
     UP, DOWN, RIGHT, LEFT = 65, 66, 67, 68
 
     # Vim keys
@@ -135,21 +149,21 @@ from random import randint
 
 class GameArry(object):
 
-    __board = None
-    __cmd = ConsleString()
-    __score = 0
-    __key = Control()
+    __board = None　#这是一个一维数组可以模拟二维数组　或者更高维
+    __cmd = ConsleString()　#终端字符串格式化　得到有色字体的利器
+    __score = 0 #得分
+    __key = Control() #　获得终端按键
 
-    def __init__(self, array_len=4):
-        self.array_len = array_len
+    def __init__(self, hard=4):
+        self.__hard = hard
         self.reset()
 
     def reset(self):
-        if not self.array_len:
-            self.array_len = 4
-        elif not (isinstance(self.array_len, int) and self.array_len >= 4 and self.array_len <= 8):
-            self.array_len = 4
-        self.__board = [0 for _ in range(self.array_len * self.array_len)]
+        if not self.__hard:
+            self.__hard = 4
+        elif not (isinstance(self.__hard, int) and self.__hard >= 4 and self.__hard <= 8):
+            self.__hard = 4
+        self.__board = [0 for _ in range(self.__hard * self.__hard)]
         self.__score = 0
         self.__create_point(2)
 
@@ -162,31 +176,36 @@ class GameArry(object):
             self.__board[__r] = 2
 
     def __move(self, left, right, step, fi):
+        sign = False
         for i in range(left, right, step):
-            for rl in range(self.array_len):
+            for rl in range(self.__hard):
                 for j in range(left, i, step):
-                    __index = fi(i, self.array_len, rl)
-                    __next = fi(j, self.array_len, rl)
+                    __index = fi(i, self.__hard, rl)
+                    __next = fi(j, self.__hard, rl)
                     if self.__board[__index] == self.__board[__next] or self.__board[__next] == 0:
                         self.__board[
                             __next] += self.__board[__index]
                         self.__score += self.__board[__index]
                         self.__board[__index] = 0
+                        sign = True
+                    else:
+                        
                         break
+        return sign
 
     def down(self):
-        self.__move(self.array_len - 1,  -1,
+        self.__move(self.__hard - 1,  0,
                     -1, lambda x, y, z: x * y + z)
 
     def up(self):
-        self.__move(0, self.array_len, 1, lambda x, y, z: x * y + z)
+        self.__move(1, self.__hard, 1, lambda x, y, z: x * y + z)
 
     def left(self):
-        self.__move(0, self.array_len, 1, lambda x, y, z:  z * y + x)
+        self.__move(1, self.__hard, 1, lambda x, y, z:  x * y + z)
 
     def right(self):
-        self.__move(self.array_len - 1,  -1,
-                    -1, lambda x, y, z:  z * y + x)
+        self.__move(self.__hard - 1,  0,
+                    -1, lambda x, y, z:  x * y + z)
 
     def __random(self, min, max):
         return randint(min, max)
@@ -201,26 +220,47 @@ class GameArry(object):
 
         ConsleString.consle_clear()
 
-        for i in range(self.array_len):
+        for i in range(self.__hard):
             self.__cmd.clear()
             consle = []
-            for j in range(self.array_len):
-                if self.__board[i * self.array_len + j] == 0:
-                    consle.append('%6s' % ' ')
+            for j in range(self.__hard):
+                if self.__board[i * self.__hard + j] == 0:
+                    consle.append('%s' % ' ')
                 else:
                     consle.append(
-                        '%6s' % str(self.__board[i * self.array_len + j]))
+                        '%6s' % str(self.__board[i * self.__hard + j]))
             self.__cmd.red.green.append_string(''.join(consle))
             ConsleString.consle_show(self.__cmd)
+            # ConsleString.consle_show()
 
     def start(self):
+        '''
+        游戏主ｍａｉｎ方法
+        游戏开始
+        '''
 
-        while True:
+        while self.__islive:
             self.__pgame()
             key = self.__key.getKey()
             if key:
-                getattr(self , key.lower())()
-                self.__create_point()
+                if getattr(self, key.lower())():
+                    self.__create_point()
+
+    def __islive(self):
+        '''
+        判断游戏是否可以继续
+        判断是否有空格的存在
+        判断是否有一个方块与左面相同（其实你在我的右面　等于我的左面的左面）
+        判断是否有一个方块于上面一个方块相同
+        '''
+        for i in range(self.__hard):
+            for j in range(self.__hard):
+                if self.__board[i * __hard + j] == 0:
+                    return True
+                elif (i - 1) > 0 and self.__board[(i - 1) * self.__hard + j] == self.__board[i * self.__hard + j]:
+                    return True
+                elif (j - 1) > 0 and self.__board[i * self.__hard + j] == self.__board[i * self.__hard + j - 1]:
+                    return True
 
 
 if __name__ == '__main__':
