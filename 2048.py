@@ -79,10 +79,12 @@ class ConsleString(object):
         call(['echo', '-e', '\33[%dC' % (line)])
 
 
+import sys
+import tty
+import termios
+
+
 class Control(object):
-    import sys
-    import tty
-    import termios
 
     UP, DOWN, RIGHT, LEFT = 65, 66, 67, 68
 
@@ -96,9 +98,15 @@ class Control(object):
         H: LEFT,
     }
 
+    __key_map = {65: 'UP',
+                 66: 'DOWN',
+                 67: 'RIGHT',
+                 68: 'LEFT'
+                 }
+
     def __init__(self):
         self.__fd = sys.stdin.fileno()
-        self.__old = termios.tcgetattr(__fd)
+        self.__old = termios.tcgetattr(self.__fd)
 
     def __getKey(self):
         """Return a key pressed by the user"""
@@ -120,7 +128,7 @@ class Control(object):
             if k == 91:
                 k = self.__getKey()
 
-        return self.__key_aliases.get(k, k)
+        return self.__key_map.get(self.__key_aliases.get(k, k))
 
 from random import randint
 
@@ -130,6 +138,7 @@ class GameArry(object):
     __board = None
     __cmd = ConsleString()
     __score = 0
+    __key = Control()
 
     def __init__(self, array_len=4):
         self.array_len = array_len
@@ -144,7 +153,7 @@ class GameArry(object):
         self.__score = 0
         self.__create_point(2)
 
-    def __create_point(self , n = 1):
+    def __create_point(self, n=1):
         for i in range(n):
             __r = self.__random(0, len(self.__board) - 1)
             if self.__board[__r] != 0:
@@ -182,23 +191,38 @@ class GameArry(object):
     def __random(self, min, max):
         return randint(min, max)
 
-    def p(self):
+    def test(self):
+        self.__cmd.red.black.append_string('english')
+        print self.__cmd
+        ConsleString.consle_show(self.__cmd)
+        self.__cmd.clear()
+
+    def __pgame(self):
+
+        ConsleString.consle_clear()
+
         for i in range(self.array_len):
-            print self.__board[i * self.array_len: (i + 1) * self.array_len]
+            self.__cmd.clear()
+            consle = []
+            for j in range(self.array_len):
+                if self.__board[i * self.array_len + j] == 0:
+                    consle.append('%6s' % ' ')
+                else:
+                    consle.append(
+                        '%6s' % str(self.__board[i * self.array_len + j]))
+            self.__cmd.red.green.append_string(''.join(consle))
+            ConsleString.consle_show(self.__cmd)
+
+    def start(self):
+
+        while True:
+            self.__pgame()
+            key = self.__key.getKey()
+            if key:
+                getattr(self , key.lower())()
+                self.__create_point()
 
 
 if __name__ == '__main__':
-    print range(4, 1, -1)
     c = GameArry()
-    print c.p()
-    c.down()
-    print c.p()
-    c.up()
-    print c.p()
-    c.down()
-    print c.p()
-    c.left()
-    print c.p()
-    c.left()
-    print c.p()
-    print range(1, 4)
+    print c.start()
