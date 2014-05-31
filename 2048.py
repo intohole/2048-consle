@@ -8,6 +8,7 @@ from subprocess import call
 
 
 class ConsleString(object):
+
     '''
     终端颜色字体输出
     主要运用方式为
@@ -20,7 +21,7 @@ class ConsleString(object):
     原理 : echo -e 
     特殊字符的颜色字体
     '''
-    __strbuffer = [] #字符串储存　
+    __strbuffer = []  # 字符串储存　
     __fore_color = False
     __append = False
 
@@ -96,6 +97,7 @@ import termios
 
 
 class Control(object):
+
     '''
     这个是网络上抄的　，　摘自https://github.com/bfontaine/term2048/blob/master/term2048/keypress.py
     但是其它部分都是原创　，　打小抄了　．．．
@@ -149,10 +151,10 @@ from random import randint
 
 class GameArry(object):
 
-    __board = None　#这是一个一维数组可以模拟二维数组　或者更高维
-    __cmd = ConsleString()　#终端字符串格式化　得到有色字体的利器
-    __score = 0 #得分
-    __key = Control() #　获得终端按键
+    __board = None  # 这是一个一维数组可以模拟二维数组　或者更高维
+    __cmd = ConsleString()  # 终端字符串格式化　得到有色字体的利器
+    __score = 0  # 得分
+    __key = Control()  # 　获得终端按键
 
     def __init__(self, hard=4):
         self.__hard = hard
@@ -168,44 +170,72 @@ class GameArry(object):
         self.__create_point(2)
 
     def __create_point(self, n=1):
-        for i in range(n):
+        __create = 0
+        while __create < n:
             __r = self.__random(0, len(self.__board) - 1)
             if self.__board[__r] != 0:
-                i = i - 1
                 continue
             self.__board[__r] = 2
+            __create += 1
 
     def __move(self, left, right, step, fi):
+        '''
+        功能：
+        整个数组的移动
+        '''
         sign = False
-        for i in range(left, right, step):
-            for rl in range(self.__hard):
-                for j in range(left, i, step):
+        for rl in range(self.__hard):
+        # 上移　或者　下移　时　rl == 列数
+        # 左移　或者　右移　时　rl == 行数
+            for i in range(left, right, step):
+                for j in range(left - step, i, step):
                     __index = fi(i, self.__hard, rl)
                     __next = fi(j, self.__hard, rl)
+                    if self.__board[__index] == 0:
+                        continue
                     if self.__board[__index] == self.__board[__next] or self.__board[__next] == 0:
+                        __cool = True
+                        for k in range(j + step,  i, step):
+                            if self.__board[fi(k, self.__hard, rl)] != 0:
+                                __cool = False
+                                break
+                        if not __cool:
+                            continue
+
                         self.__board[
                             __next] += self.__board[__index]
                         self.__score += self.__board[__index]
                         self.__board[__index] = 0
                         sign = True
-                    else:
-                        
-                        break
         return sign
 
     def down(self):
-        self.__move(self.__hard - 1,  0,
-                    -1, lambda x, y, z: x * y + z)
+        # index = row * array_len + rl => 行数　＊　数组长度（４＊　４）　 rl 列数 =等于要移动的坐标
+        # row = [2 , 1 , 0]
+        #
+        return self.__move(self.__hard - 2,  -1,
+                           -1, lambda x, y, z: x * y + z)
 
     def up(self):
-        self.__move(1, self.__hard, 1, lambda x, y, z: x * y + z)
+        '''
+        数组上移　，　对应的操作是 up
+        '''
+        # index = row * array_ len
+        # row = [1 , 2, 3]
+        return self.__move(1, self.__hard, 1, lambda x, y, z: x * y + z)
 
     def left(self):
-        self.__move(1, self.__hard, 1, lambda x, y, z:  x * y + z)
+        '''
+        数组左移　对应LEFT 按键
+        '''
+        return self.__move(1, self.__hard, 1, lambda x, y, z:  z * y + x)
 
     def right(self):
-        self.__move(self.__hard - 1,  0,
-                    -1, lambda x, y, z:  x * y + z)
+        '''
+
+        '''
+        return self.__move(self.__hard - 2,  -1,
+                           -1, lambda x, y, z:  z * y + x)
 
     def __random(self, min, max):
         return randint(min, max)
@@ -219,16 +249,19 @@ class GameArry(object):
     def __pgame(self):
 
         ConsleString.consle_clear()
+        # print 'xxxxxxxxxxxxxx'
+        # for i in range(self.__hard):
+        #     print self.__board[i * self.__hard: (i + 1) * self.__hard]
 
         for i in range(self.__hard):
             self.__cmd.clear()
             consle = []
             for j in range(self.__hard):
                 if self.__board[i * self.__hard + j] == 0:
-                    consle.append('%s' % ' ')
+                    consle.append('%4s' % ' ')
                 else:
                     consle.append(
-                        '%6s' % str(self.__board[i * self.__hard + j]))
+                        '%4s' % str(self.__board[i * self.__hard + j]))
             self.__cmd.red.green.append_string(''.join(consle))
             ConsleString.consle_show(self.__cmd)
             # ConsleString.consle_show()
@@ -243,7 +276,8 @@ class GameArry(object):
             self.__pgame()
             key = self.__key.getKey()
             if key:
-                if getattr(self, key.lower())():
+                if getattr(self,  key.lower())():
+
                     self.__create_point()
 
     def __islive(self):
