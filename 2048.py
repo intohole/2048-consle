@@ -53,6 +53,7 @@ class ConsleString(object):
         self.__color(key, 'purple', 35, 45)
         self.__color(key, 'darkgreen', 36, 46)
         self.__color(key, 'white', 37, 47)
+        self.__color(key , 'default' , 49 , 49)
         if key == 'consle':
             self.__strbuffer.append('0m')
         if key == 'hg':
@@ -170,6 +171,7 @@ class GameArry(object):
         self.__create_point(2)
 
     def __create_point(self, n=1):
+
         __create = 0
         while __create < n:
             __r = self.__random(0, len(self.__board) - 1)
@@ -182,6 +184,8 @@ class GameArry(object):
         '''
         功能：
         整个数组的移动
+        left 循环控制
+        fi -> 转换坐标方程
         '''
         sign = False
         for rl in range(self.__hard):
@@ -262,12 +266,12 @@ class GameArry(object):
                 else:
                     consle.append(
                         '%4s' % str(self.__board[i * self.__hard + j]))
-            self.__cmd.red.green.append_string(''.join(consle))
+            self.__cmd.red.default.append_string(''.join(consle))
             ConsleString.consle_show(self.__cmd)
         ConsleString.consle_show('')
         ConsleString.consle_show('')
         self.__cmd.clear()
-        self.__cmd.green.red.append_string('\t\t\tScore:').red.green.append_string('%6s' % self.__score)
+        self.__cmd.red.default.append_string('\t\t\tScore:').green.default.append_string('%6s' % self.__score)
         ConsleString.consle_show(self.__cmd)
 
     def start(self):
@@ -281,7 +285,6 @@ class GameArry(object):
             key = self.__key.getKey()
             if key:
                 if getattr(self,  key.lower())():
-
                     self.__create_point()
 
 
