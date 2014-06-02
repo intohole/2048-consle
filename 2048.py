@@ -264,7 +264,11 @@ class GameArry(object):
                         '%4s' % str(self.__board[i * self.__hard + j]))
             self.__cmd.red.green.append_string(''.join(consle))
             ConsleString.consle_show(self.__cmd)
-            # ConsleString.consle_show()
+        ConsleString.consle_show('')
+        ConsleString.consle_show('')
+        self.__cmd.clear()
+        self.__cmd.green.red.append_string('\t\t\tScore:').red.green.append_string('%6s' % self.__score)
+        ConsleString.consle_show(self.__cmd)
 
     def start(self):
         '''
@@ -272,13 +276,14 @@ class GameArry(object):
         游戏开始
         '''
 
-        while self.__islive:
+        while self.__islive():
             self.__pgame()
             key = self.__key.getKey()
             if key:
                 if getattr(self,  key.lower())():
 
                     self.__create_point()
+
 
     def __islive(self):
         '''
@@ -289,12 +294,14 @@ class GameArry(object):
         '''
         for i in range(self.__hard):
             for j in range(self.__hard):
-                if self.__board[i * __hard + j] == 0:
+                if self.__board[i * self.__hard + j] == 0:
                     return True
                 elif (i - 1) > 0 and self.__board[(i - 1) * self.__hard + j] == self.__board[i * self.__hard + j]:
                     return True
                 elif (j - 1) > 0 and self.__board[i * self.__hard + j] == self.__board[i * self.__hard + j - 1]:
                     return True
+        return False
+
 
 
 if __name__ == '__main__':
