@@ -286,6 +286,9 @@ class GameArry(object):
             if key:
                 if getattr(self,  key.lower())():
                     self.__create_point()
+        ConsleString.consle_show('')
+        self.__cmd.clear()
+        self.__cmd.red.default.append_string('\t\t\tGAME OVER!!!!!!!!!')
 
 
     def __islive(self):
@@ -309,4 +312,4 @@ class GameArry(object):
 
 if __name__ == '__main__':
     c = GameArry()
-    print c.start()
+    c.start()
