@@ -289,6 +289,7 @@ class GameArry(object):
         ConsleString.consle_show('')
         self.__cmd.clear()
         self.__cmd.red.default.append_string('\t\t\tGAME OVER!!!!!!!!!')
+        ConsleString.consle_show(self.__cmd)
 
 
     def __islive(self):
