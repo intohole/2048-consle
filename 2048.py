@@ -177,7 +177,7 @@ class GameArry(object):
             __r = self.__random(0, len(self.__board) - 1)
             if self.__board[__r] != 0:
                 continue
-            self.__board[__r] = 2
+            self.__board[__r] = 2 if self.__random(0,100) < 90 else 4
             __create += 1
 
     def __move(self, left, right, step, fi):
