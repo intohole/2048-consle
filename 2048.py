@@ -5,7 +5,7 @@
 from optparse import OptionParser
 import sys
 from subprocess import call
-from b2.consle2 import * 
+from b2.console2 import *
 
 
 from random import randint
@@ -14,7 +14,7 @@ from random import randint
 class GameArry(object):
 
     __board = None  # 这是一个一维数组可以模拟二维数组　或者更高维
-    __cmd = ConsleString()  # 终端字符串格式化　得到有色字体的利器
+    __cmd = ConsoleString()  # 终端字符串格式化　得到有色字体的利器
     __score = 0  # 得分
     __key = Control()  # 　获得终端按键
 
@@ -32,7 +32,6 @@ class GameArry(object):
         self.__create_point(2)
 
     def __create_point(self, n=1):
-
         __create = 0
         while __create < n:
             __r = self.__random(0, len(self.__board) - 1)
@@ -104,7 +103,7 @@ class GameArry(object):
 
     def __pgame(self):
 
-        ConsleString.consle_clear()
+        ConsoleString.consle_clear()
         # print 'xxxxxxxxxxxxxx'
         # for i in range(self.__hard):
         #     print self.__board[i * self.__hard: (i + 1) * self.__hard]
@@ -119,12 +118,12 @@ class GameArry(object):
                     consle.append(
                         '%4s' % str(self.__board[i * self.__hard + j]))
             self.__cmd.red.default.append_string(''.join(consle))
-            ConsleString.consle_show(self.__cmd)
-        ConsleString.consle_show('')
-        ConsleString.consle_show('')
+            ConsoleString.consle_show(self.__cmd)
+        ConsoleString.consle_show('')
+        ConsoleString.consle_show('')
         self.__cmd.clear()
         self.__cmd.red.default.append_string('\t\t\tScore:').green.default.append_string('%6s' % self.__score)
-        ConsleString.consle_show(self.__cmd)
+        ConsoleString.consle_show(self.__cmd)
 
     def start(self):
         '''
