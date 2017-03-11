@@ -137,10 +137,11 @@ class GameArry(object):
             if key:
                 if getattr(self,  key.lower())():
                     self.__create_point()
-        ConsleString.consle_show('')
+        ConsoleString.consle_show('')
         self.__cmd.clear()
         self.__cmd.red.default.append_string('\t\t\tGAME OVER!!!!!!!!!')
-        ConsleString.consle_show(self.__cmd)
+        ConsoleString.consle_show(self.__cmd)
+
 
 
     def __islive(self):
